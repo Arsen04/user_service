@@ -2,12 +2,27 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use App\Shared\Container;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as RouteParser;
 use FastRoute\DataGenerator\GroupCountBased as DataGenerator;
 use function FastRoute\simpleDispatcher;
 
 $router = new RouteCollector(new RouteParser(), new DataGenerator());
+
+try {
+    $container = Container::build();
+} catch (Exception $e) {
+    var_dump($e->getMessage());
+
+    return json_encode(
+        [
+            'error' => $e->getMessage(),
+            'code' => $e->getCode(),
+        ]
+    );
+}
+
 $dispatcher = simpleDispatcher(function(RouteCollector $router) {
     $routeSetup = require __DIR__ . '/../src/Routing/web.php';
     $routeSetup($router);
@@ -38,7 +53,15 @@ switch ($routeInfo[0]) {
         $vars = $routeInfo[2];
 
         if (is_array($handler) && count($handler) === 2) {
-            $controller = new $handler[0]();
+            try {
+                $controllerClass = $handler[0];
+                // echo "Attempting to get controller: " . $controllerClass;
+                $controller = $container->get($controllerClass);
+            } catch (Exception $e) {
+                // echo "Failed to resolve controller: " . $controllerClass;
+                // echo "Error: " . $e->getMessage();
+                exit;
+            }
             if (method_exists($controller, $handler[1])) {
                 $response = call_user_func_array([$controller, $handler[1]], $vars);
                 echo $response;

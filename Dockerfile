@@ -7,8 +7,9 @@ RUN apt-get update && apt-get install -y \
     git \
     libzip-dev \
     unzip \
+    libpq-dev \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && docker-php-ext-install mysqli sockets zip
+    && docker-php-ext-install mysqli sockets zip pdo_mysql pdo_pgsql pgsql
 
 # Set the working directory inside the container
 WORKDIR /var/www/html
