@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http;
+namespace App\Presentation\Http;
 
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\RequestInterface;
@@ -11,28 +11,28 @@ use Psr\Http\Message\UriInterface;
 final class Request
     implements ServerRequestInterface
 {
-    public const METHOD_GET = 'GET';
-    public const METHOD_POST = 'POST';
-    public const METHOD_PUT = 'PUT';
-    public const METHOD_DELETE = 'DELETE';
-    public const METHOD_PATCH = 'PATCH';
-    public const METHOD_OPTIONS = 'OPTIONS';
-    public const METHOD_HEAD = 'HEAD';
+    public const string METHOD_GET = 'GET';
+    public const string METHOD_POST = 'POST';
+    public const string METHOD_PUT = 'PUT';
+    public const string METHOD_DELETE = 'DELETE';
+    public const string METHOD_PATCH = 'PATCH';
+    public const string METHOD_OPTIONS = 'OPTIONS';
+    public const string METHOD_HEAD = 'HEAD';
 
-    public const CONTENT_TYPE_JSON = 'application/json';
-    public const CONTENT_TYPE_XML = 'application/xml';
-    public const CONTENT_TYPE_FORM = 'application/x-www-form-urlencoded';
-    public const CONTENT_TYPE_TEXT = 'text/plain';
-    public const CONTENT_TYPE_HTML = 'text/html';
+    public const string CONTENT_TYPE_JSON = 'application/json';
+    public const string CONTENT_TYPE_XML = 'application/xml';
+    public const string CONTENT_TYPE_FORM = 'application/x-www-form-urlencoded';
+    public const string CONTENT_TYPE_TEXT = 'text/plain';
+    public const string CONTENT_TYPE_HTML = 'text/html';
 
-    public const HEADER_CONTENT_TYPE = 'Content-Type';
-    public const HEADER_ACCEPT = 'Accept';
-    public const HEADER_AUTHORIZATION = 'Authorization';
-    public const HEADER_USER_AGENT = 'User-Agent';
-    public const HEADER_CACHE_CONTROL = 'Cache-Control';
+    public const string HEADER_CONTENT_TYPE = 'Content-Type';
+    public const string HEADER_ACCEPT = 'Accept';
+    public const string HEADER_AUTHORIZATION = 'Authorization';
+    public const string HEADER_USER_AGENT = 'User-Agent';
+    public const string HEADER_CACHE_CONTROL = 'Cache-Control';
 
-    public const PARAMS_QUERY = 'query';
-    public const PARAMS_BODY = 'body';
+    public const string PARAMS_QUERY = 'query';
+    public const string PARAMS_BODY = 'body';
 
     private string $method;
     private UriInterface $uri;

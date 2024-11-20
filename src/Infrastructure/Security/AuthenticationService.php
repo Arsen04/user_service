@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Security;
+namespace App\Infrastructure\Security;
 
-use App\Domain\UserInterface;
+use App\Domain\Entities\UserInterface;
 
 class AuthenticationService
 {
@@ -13,8 +13,10 @@ class AuthenticationService
      * @param string $password
      * @return bool
      */
-        public function verifyPassword(UserInterface $user, string $password): bool
-    {
+    public function verifyPassword(
+        UserInterface $user,
+        string $password
+    ): bool {
         return password_verify($password, $user->getPassword());
     }
 }

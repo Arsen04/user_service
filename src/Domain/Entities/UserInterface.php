@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Domain;
+namespace App\Domain\Entities;
 
+use App\Domain\ValueObjects\Email;
 use DateTimeImmutable;
 
 interface UserInterface
@@ -40,20 +41,20 @@ interface UserInterface
     public function setName(string $name): void;
 
     /**
-     * @return string
+     * @return Email
      */
-    public function getEmail(): string;
+    public function getEmail(): Email;
 
     /**
-     * @param string $email
+     * @param Email $email
      * @return void
      */
-    public function setEmail(string $email): void;
+    public function setEmail(Email $email): void;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getOldPassword(): string;
+    public function getOldPassword(): ?string;
 
     /**
      * @param string $oldPassword

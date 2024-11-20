@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace App\Domain\Repository;
 
-use App\Domain\UserInterface;
+use App\Domain\Entities\UserInterface;
 
 interface UserRepositoryInterface
 {
@@ -13,9 +13,9 @@ interface UserRepositoryInterface
 
     /**
      * @param int $id
-     * @return UserInterface
+     * @return UserInterface|bool
      */
-    public function findById(int $id): UserInterface;
+    public function findById(int $id): UserInterface|bool;
 
     /**
      * @param array $params
@@ -28,4 +28,11 @@ interface UserRepositoryInterface
      * @return UserInterface
      */
     public function findOneBy(array $params): UserInterface;
+
+    /**
+     * @param array $userData
+     * @param bool $update
+     * @return UserInterface|null
+     */
+    public function insertOrUpdate(array $userData, bool $update = false): ?UserInterface;
 }

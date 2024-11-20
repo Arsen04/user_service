@@ -1,8 +1,8 @@
 <?php
 
-namespace App\View;
+namespace App\Presentation\View;
 
-use App\Domain\UserInterface;
+use App\Domain\Entities\UserInterface;
 
 class UserView
 {
@@ -13,11 +13,9 @@ class UserView
     public static function formatUser(UserInterface $user): array
     {
         return [
-            'id' => $user->getId(),
             'name' => $user->getName(),
             'roles' => $user->getRoles(),
-            'email' => $user->getEmail(),
-            'created_at' => $user->getCreatedAt()->format('d-m-Y'),
+            'email' => $user->getEmail()->__toString(),
         ];
     }
 }

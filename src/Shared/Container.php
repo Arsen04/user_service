@@ -2,8 +2,8 @@
 
 namespace App\Shared;
 
-use App\Repository\UserRepository;
-use App\Repository\UserRepositoryInterface;
+use App\Domain\Repository\UserRepositoryInterface;
+use App\Infrastructure\Repository\UserRepository;
 use DI\ContainerBuilder;
 use PDO;
 use PDOException;

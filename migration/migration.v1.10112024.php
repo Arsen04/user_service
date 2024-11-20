@@ -19,9 +19,9 @@ try {
             roles JSONB NOT NULL,
             name VARCHAR(255) NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
-            old_password VARCHAR(255) NOT NULL,
+            old_password VARCHAR(255),
             password VARCHAR(255) NOT NULL,
-            updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+            updated_at TIMESTAMPTZ
         );
     ";
 

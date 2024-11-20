@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http;
+namespace App\Presentation\Http;
 
 use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\MessageInterface;
@@ -10,42 +10,42 @@ use Psr\Http\Message\StreamInterface;
 final class Response
     implements ResponseInterface
 {
-    public const STATUS_OK = 200;
-    public const STATUS_CREATED = 201;
-    public const STATUS_ACCEPTED = 202;
-    public const STATUS_NO_CONTENT = 204;
-    public const STATUS_MOVED_PERMANENTLY = 301;
-    public const STATUS_FOUND = 302;
-    public const STATUS_NOT_MODIFIED = 304;
-    public const STATUS_BAD_REQUEST = 400;
-    public const STATUS_UNAUTHORIZED = 401;
-    public const STATUS_FORBIDDEN = 403;
-    public const STATUS_NOT_FOUND = 404;
-    public const STATUS_METHOD_NOT_ALLOWED = 405;
-    public const STATUS_CONFLICT = 409;
-    public const STATUS_INTERNAL_SERVER_ERROR = 500;
-    public const STATUS_NOT_IMPLEMENTED = 501;
-    public const STATUS_BAD_GATEWAY = 502;
-    public const STATUS_SERVICE_UNAVAILABLE = 503;
+    public const int STATUS_OK = 200;
+    public const int STATUS_CREATED = 201;
+    public const int STATUS_ACCEPTED = 202;
+    public const int STATUS_NO_CONTENT = 204;
+    public const int STATUS_MOVED_PERMANENTLY = 301;
+    public const int STATUS_FOUND = 302;
+    public const int STATUS_NOT_MODIFIED = 304;
+    public const int STATUS_BAD_REQUEST = 400;
+    public const int STATUS_UNAUTHORIZED = 401;
+    public const int STATUS_FORBIDDEN = 403;
+    public const int STATUS_NOT_FOUND = 404;
+    public const int STATUS_METHOD_NOT_ALLOWED = 405;
+    public const int STATUS_CONFLICT = 409;
+    public const int STATUS_INTERNAL_SERVER_ERROR = 500;
+    public const int STATUS_NOT_IMPLEMENTED = 501;
+    public const int STATUS_BAD_GATEWAY = 502;
+    public const int STATUS_SERVICE_UNAVAILABLE = 503;
 
-    public const CONTENT_TYPE_JSON = 'application/json';
-    public const CONTENT_TYPE_XML = 'application/xml';
-    public const CONTENT_TYPE_HTML = 'text/html';
-    public const CONTENT_TYPE_TEXT = 'text/plain';
-    public const PROTOCOL_VERSION = '1.1';
+    public const string CONTENT_TYPE_JSON = 'application/json';
+    public const string CONTENT_TYPE_XML = 'application/xml';
+    public const string CONTENT_TYPE_HTML = 'text/html';
+    public const string CONTENT_TYPE_TEXT = 'text/plain';
+    public const string PROTOCOL_VERSION = '1.1';
 
-    public const HEADER_CONTENT_TYPE = 'Content-Type';
-    public const HEADER_LOCATION = 'Location';
-    public const HEADER_CACHE_CONTROL = 'Cache-Control';
-    public const HEADER_EXPIRES = 'Expires';
+    public const string HEADER_CONTENT_TYPE = 'Content-Type';
+    public const string HEADER_LOCATION = 'Location';
+    public const string HEADER_CACHE_CONTROL = 'Cache-Control';
+    public const string HEADER_EXPIRES = 'Expires';
 
-    public const CACHE_NO_CACHE = 'no-cache, no-store, must-revalidate';
-    public const CACHE_PUBLIC = 'public';
-    public const CACHE_PRIVATE = 'private';
+    public const string CACHE_NO_CACHE = 'no-cache, no-store, must-revalidate';
+    public const string CACHE_PUBLIC = 'public';
+    public const string CACHE_PRIVATE = 'private';
 
-    public const NO_RECORDS_MESSAGE = 'No records retrieved.';
-    public const SUCCESS_STATUS_MESSAGE = 'Success.';
-    public const FAILED_STATUS_FAILURE = 'Failure.';
+    public const string NO_RECORDS_MESSAGE = 'No records retrieved.';
+    public const string SUCCESS_STATUS_MESSAGE = 'Success.';
+    public const string FAILED_STATUS_FAILURE = 'Failure.';
 
     private int $statusCode = self::STATUS_OK;
     private array $headers = [];
@@ -107,8 +107,11 @@ final class Response
         return $this->body;
     }
 
-    public function withJson(array $data, int $statusCode = 200, array $headers = []): ResponseInterface
-    {
+    public function withJson(
+        array $data,
+        int $statusCode = 200,
+        array $headers = []
+    ): ResponseInterface {
         $jsonData = json_encode($data);
 
         if ($jsonData === false) {
@@ -270,10 +273,10 @@ final class Response
 
     /**
      * @param string $name
-     * @param $value
+     * @param mixed $value
      * @return MessageInterface
      */
-    public function withAddedHeader(string $name, $value): MessageInterface
+    public function withAddedHeader(string $name, mixed $value): MessageInterface
     {
         $clone = clone $this;
         $clone->headers[$name] = array_merge($clone->headers[$name] ?? [], (array) $value);

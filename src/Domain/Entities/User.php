@@ -1,43 +1,44 @@
 <?php
 
-namespace App\Domain;
+namespace App\Domain\Entities;
 
+use App\Domain\ValueObjects\Email;
 use DateTimeImmutable;
 
 class User
     implements UserInterface
 {
-    private ?int $id = null;
+    private ?int $id;
     private array $roles;
     private string $name;
-    private string $email;
-    private string $oldPassword;
-    private string $password;
+    private Email $email;
+    private ?string $oldPassword;
+    private ?string $password;
     private bool $deleted;
     private ?DateTimeImmutable $updated_at;
-    private DateTimeImmutable $created_at;
+    private ?DateTimeImmutable $created_at;
 
     /**
-     * @param int $id
+     * @param int|null $id
      * @param array $roles
      * @param string $name
-     * @param string $email
-     * @param string $oldPassword
-     * @param string $password
+     * @param Email $email
+     * @param string|null $oldPassword
+     * @param string|null $password
      * @param boolean $deleted
-     * @param DateTimeImmutable $updated_at
-     * @param DateTimeImmutable $created_at
+     * @param DateTimeImmutable|null $updated_at
+     * @param DateTimeImmutable|null $created_at
      */
     public function __construct(
-        int $id,
+        ?int $id,
         array $roles,
         string $name,
-        string $email,
-        string $oldPassword,
-        string $password,
+        Email $email,
+        ?string $oldPassword,
+        ?string $password,
         bool $deleted,
-        DateTimeImmutable $updated_at,
-        DateTimeImmutable $created_at
+        ?DateTimeImmutable $updated_at,
+        ?DateTimeImmutable $created_at
     ) {
         $this->id = $id;
         $this->roles = $roles;
@@ -106,26 +107,26 @@ class User
     }
 
     /**
-     * @return string
+     * @return Email
      */
-    public function getEmail(): string
+    public function getEmail(): Email
     {
         return $this->email;
     }
 
     /**
-     * @param string $email
+     * @param Email $email
      * @return void
      */
-    public function setEmail(string $email): void
+    public function setEmail(Email $email): void
     {
         $this->email = $email;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getOldPassword(): string
+    public function getOldPassword(): ?string
     {
         return $this->oldPassword;
     }
