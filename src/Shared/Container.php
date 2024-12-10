@@ -2,7 +2,9 @@
 
 namespace App\Shared;
 
+use App\Domain\Interfaces\NotificationServiceInterface;
 use App\Domain\Repository\UserRepositoryInterface;
+use App\Infrastructure\ExternalServices\HttpNotificationService;
 use App\Infrastructure\Repository\UserRepository;
 use DI\ContainerBuilder;
 use PDO;
@@ -29,6 +31,9 @@ class Container
                 },
                 UserRepositoryInterface::class => function ($container) {
                     return new UserRepository($container->get(PDO::class));
+                },
+                NotificationServiceInterface::class => function () {
+                    return new HttpNotificationService();
                 }
             ]);
         } catch (PDOException $e) {

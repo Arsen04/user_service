@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\UseCases;
+namespace App\Application\UseCases\User;
 
 use App\Application\Services\UserService;
 use App\Shared\Exceptions\RecordNotFoundException;

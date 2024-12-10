@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\UseCases;
+namespace App\Application\UseCases\User;
 
 use App\Application\Services\UserService;
 use App\Domain\Entities\UserInterface;
@@ -35,6 +35,12 @@ class CreateUser
             throw new RecordExistsException("User with this email already exists.");
         }
 
-        return $this->userService->saveUser(json_decode(json_encode($userData), true));
+        return $this->userService
+            ->saveUser(
+                json_decode(
+                    json_encode($userData),
+                    true
+                )
+            );
     }
 }

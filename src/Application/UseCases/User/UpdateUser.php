@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\UseCases;
+namespace App\Application\UseCases\User;
 
 use App\Application\Services\UserService;
 use App\Domain\Entities\UserInterface;
@@ -42,6 +42,13 @@ class UpdateUser
         }
 
         $userData->id = $id;
-        return $this->userService->saveUser(json_decode(json_encode($userData), true), true);
+        return $this->userService
+            ->saveUser(
+                json_decode(
+                    json_encode($userData),
+                    true
+                ),
+                true
+            );
     }
 }
