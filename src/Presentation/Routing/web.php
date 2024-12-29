@@ -13,12 +13,3 @@ return function (RouteCollector $router) {
         $group->addRoute(Http::DELETE->value, '/{id}', [UserController::class, 'deleteUser']);
     });
 };
-
-function withMiddleware(callable $handler, array $middlewares): callable {
-    return function ($request) use ($handler, $middlewares) {
-        foreach ($middlewares as $middleware) {
-            $request = $middleware($request);
-        }
-        return $handler($request);
-    };
-}

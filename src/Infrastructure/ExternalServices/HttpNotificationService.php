@@ -16,10 +16,16 @@ class HttpNotificationService
     {
         $baseUri = Config::get('notification_service.base_uri');
         $timeout = Config::get('notification_service.timeout');
+        $apiToken = Config::get('api.key');
+        $apiVersion = Config::get('api.version');
 
         $this->client = new Client([
             'base_uri' => $baseUri,
             'timeout'  => $timeout,
+            'headers'  => [
+                'API-Key'     => $apiToken,
+                'API-Version' => $apiVersion,
+            ],
         ]);
     }
 

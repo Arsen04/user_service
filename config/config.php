@@ -15,6 +15,10 @@ $host = $_ENV['NOTIFICATION_HOST'] ?? null;
 $port = $_ENV['NOTIFICATION_PORT'] ?? null;
 
 return [
+    'api' => [
+        'key'     => $_ENV['API_KEY'] ?? null,
+        'version' => $_ENV['API_VERSION'] ?? null,
+    ],
     'notification_service' => [
         'base_uri' => $port ? "{$host}:{$port}" : $host,
         'timeout'  => 20.0,
