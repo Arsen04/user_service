@@ -4,7 +4,7 @@ namespace App\Infrastructure\Security;
 
 use App\Domain\Entities\UserInterface;
 
-class AuthenticationService
+class Authentication
 {
     /**
      * Verify the provided password against the stored hashed password.

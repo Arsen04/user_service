@@ -2,12 +2,15 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use App\Presentation\Http\Request;
 use App\Presentation\Http\Response;
 use App\Shared\Container;
 use App\Shared\Enums\Http;
 use FastRoute\DataGenerator\GroupCountBased as DataGenerator;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as RouteParser;
+use GuzzleHttp\Psr7\Stream;
+use GuzzleHttp\Psr7\Uri;
 use function FastRoute\simpleDispatcher;
 
 $router = new RouteCollector(new RouteParser(), new DataGenerator());
@@ -65,28 +68,58 @@ switch ($routeInfo[0]) {
         $handler = $routeInfo[1];
         $vars = $routeInfo[2];
 
-        if (is_array($handler) && count($handler) === 2) {
-            try {
-                $controllerClass = $handler[0];
-                $controller = $container->get($controllerClass);
-            } catch (Exception $e) {
-                exit('Failed to resolve controller: ' . $e->getMessage());
-            }
+        $middlewareStack = $handler[2] ?? [];
+        $controllerClass = $handler[0];
+        $controllerMethod = $handler[1];
 
-            if (method_exists($controller, $handler[1])) {
-                $response = call_user_func_array(
-                    [$controller, $handler[1]],
-                    [...array_values($vars), $requestBody]
-                );
-                echo $response;
-            } else {
-                return $response
-                    ->withJson(['message' => 'Method not found: ' . $handler[1]], Response::STATUS_METHOD_NOT_ALLOWED)
-                    ->send();
-            }
-        } else {
-            echo 'Handler not callable';
+        if (!is_array($handler) || count($handler) < 2) {
+            echo 'Handler is not callable: ';
+            var_dump($handler);
+            exit;
         }
+
+        try {
+            $controller = $container->get($controllerClass);
+        } catch (Exception $e) {
+            exit('Failed to resolve controller: ' . $e->getMessage());
+        }
+
+        if (!method_exists($controller, $controllerMethod)) {
+            http_response_code(Response::STATUS_METHOD_NOT_ALLOWED);
+            $response
+                ->withJson(['message' => 'Method not found: ' . $controllerMethod], Response::STATUS_METHOD_NOT_ALLOWED)
+                ->send();
+            break;
+        }
+
+        $method = $_SERVER['REQUEST_METHOD'];
+        $uri = new Uri($_SERVER['REQUEST_URI']);
+        $protocolVersion = '1.1';
+        $headers = getallheaders();
+        $queryParams = $_GET;
+        $cookies = $_COOKIE;
+        $uploadedFiles = [];
+        $attributes = [];
+        $body = new Stream(fopen('php://input', 'r'));
+        $request = new Request($method, $protocolVersion, $uri, $headers, $queryParams, $cookies, $uploadedFiles, $attributes, $body);
+
+        $middlewarePipeline = function ($request, $response) use ($controller, $controllerMethod, $vars) {
+            return call_user_func_array([$controller, $controllerMethod], [...array_values($vars), $request]);
+        };
+
+        $middlewarePipeline = function ($request, $response) use ($controller, $controllerMethod, $vars) {
+            return call_user_func_array([$controller, $controllerMethod], [...array_values($vars), $request]);
+        };
+
+        foreach (array_reverse($middlewareStack) as $middlewareClass) {
+            $middleware = $container->get($middlewareClass);
+            $middlewarePipeline = function ($request, $response) use ($middleware, $middlewarePipeline) {
+                return $middleware($request, $middlewarePipeline);
+            };
+        }
+
+        $response = $middlewarePipeline($request, new Response());
+        echo $response;
 
         break;
 }

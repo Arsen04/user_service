@@ -49,7 +49,7 @@ final class Request
     /**
      * @param string $method
      * @param string $protocolVersion
-     * @param string $requestTarget
+     * @param UriInterface $uri
      * @param array $headers
      * @param array $queryParams
      * @param array $cookies
@@ -60,7 +60,7 @@ final class Request
     public function __construct(
         string $method,
         string $protocolVersion,
-        string $requestTarget,
+        UriInterface $uri,
         array $headers,
         array $queryParams,
         array $cookies,
@@ -70,7 +70,7 @@ final class Request
     ) {
         $this->method = $method;
         $this->protocolVersion = $protocolVersion;
-        $this->requestTarget = $requestTarget;
+        $this->uri = $uri;
         $this->headers = $headers;
         $this->queryParams = $queryParams;
         $this->cookies = $cookies;
@@ -137,11 +137,11 @@ final class Request
 
     /**
      * @param $name
-     * @return array|string[]
+     * @return mixed
      */
-    public function getHeader($name): array
+    public function getHeader($name): mixed
     {
-        return $this->headers[$name] ?? [];
+        return $this->headers[$name] ?? null;
     }
 
     /**

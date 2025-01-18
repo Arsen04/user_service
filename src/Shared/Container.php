@@ -2,10 +2,12 @@
 
 namespace App\Shared;
 
+use App\Application\Security\JwtService;
 use App\Domain\Interfaces\NotificationServiceInterface;
 use App\Domain\Repository\UserRepositoryInterface;
 use App\Infrastructure\ExternalServices\HttpNotificationService;
 use App\Infrastructure\Repository\UserRepository;
+use App\Infrastructure\Security\JwtAuth;
 use DI\ContainerBuilder;
 use PDO;
 use PDOException;
@@ -34,7 +36,13 @@ class Container
                 },
                 NotificationServiceInterface::class => function () {
                     return new HttpNotificationService();
-                }
+                },
+                JwtAuth::class => function () {
+                    return new JwtAuth();
+                },
+                JwtService::class => function ($container) {
+                    return new JWTService($container->get(JwtAuth::class));
+                },
             ]);
         } catch (PDOException $e) {
             echo "Connection failed: " . $e->getMessage();

@@ -15,6 +15,9 @@ $host = $_ENV['NOTIFICATION_HOST'] ?? null;
 $port = $_ENV['NOTIFICATION_PORT'] ?? null;
 
 return [
+    'app' => [
+        'secret' => $_ENV['JWT_SECRET'] ?? null,
+    ],
     'api' => [
         'key'     => $_ENV['API_KEY'] ?? null,
         'version' => $_ENV['API_VERSION'] ?? null,
