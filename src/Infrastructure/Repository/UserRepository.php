@@ -12,6 +12,15 @@ use PDO;
 class UserRepository
     implements UserRepositoryInterface
 {
+    public const string PASSWORD_COLUMN = 'password';
+    public const string OLD_PASSWORD_COLUMN = 'old_password';
+    public const string DELETED_COLUMN = 'deleted';
+    public const string UPDATED_AT_COLUMN = 'updated_at';
+    public const string CREATED_AT_COLUMN = 'created_at';
+    public const string EMAIL_COLUMN = 'email';
+    public const string NAME_COLUMN = 'name';
+    public const string ROLES_COLUMN = 'roles';
+    public const string USER_ID = 'id';
     private \PDO $pdo;
 
     /**
@@ -106,7 +115,7 @@ class UserRepository
         if ($update) {
             $setClause = [];
             foreach ($userData as $key => $value) {
-                if ($key === 'password' && (is_null($value) || $value === '')) {
+                if ($key === self::PASSWORD_COLUMN && (is_null($value) || $value === '')) {
                     continue;
                 }
                 $setClause[] = "$key = :$key";
@@ -120,12 +129,12 @@ class UserRepository
         }
         $stmt = $this->pdo->prepare($query);
 
-        if (!empty($userData['password'])) {
-            $userData['password'] = password_hash($userData['password'], PASSWORD_BCRYPT);
+        if (!empty($userData[self::PASSWORD_COLUMN])) {
+            $userData[self::PASSWORD_COLUMN] = password_hash($userData[self::PASSWORD_COLUMN], PASSWORD_BCRYPT);
         }
 
         foreach ($userData as $key => $value) {
-            if ($update && $key === 'password' && (is_null($value) || $value === '')) {
+            if ($update && $key === self::PASSWORD_COLUMN && (is_null($value) || $value === '')) {
                 continue;
             }
             $stmt->bindValue(":$key", $value);
@@ -140,15 +149,15 @@ class UserRepository
     private function returnAsObject(array $userData): UserInterface
     {
         return new User(
-            array_key_exists('id', $userData) ? $userData['id'] : null,
-            json_decode($userData['roles'], true),
-            $userData['name'],
-            new Email($userData['email']),
-            array_key_exists('old_password', $userData) ? $userData['old_password'] : null,
-            $userData['password'],
-            array_key_exists('deleted', $userData) ? $userData['deleted'] : false,
-            array_key_exists('updated_at', $userData) && $userData['updated_at'] ? new \DateTimeImmutable($userData['updated_at']) : null,
-            array_key_exists('created_at', $userData) ? new \DateTimeImmutable($userData['created_at']) : null
+            array_key_exists(self::USER_ID, $userData) ? $userData[self::USER_ID] : null,
+            json_decode($userData[self::ROLES_COLUMN], true),
+            $userData[self::NAME_COLUMN],
+            new Email($userData[self::EMAIL_COLUMN]),
+            array_key_exists(self::OLD_PASSWORD_COLUMN, $userData) ? $userData[self::OLD_PASSWORD_COLUMN] : null,
+            $userData[self::PASSWORD_COLUMN],
+            array_key_exists(self::DELETED_COLUMN, $userData) ? $userData[self::DELETED_COLUMN] : false,
+            array_key_exists(self::UPDATED_AT_COLUMN, $userData) && $userData[self::UPDATED_AT_COLUMN] ? new \DateTimeImmutable($userData[self::UPDATED_AT_COLUMN]) : null,
+            array_key_exists(self::CREATED_AT_COLUMN, $userData) ? new \DateTimeImmutable($userData[self::CREATED_AT_COLUMN]) : null
         );
     }
 }
