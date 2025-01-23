@@ -34,8 +34,10 @@ class HttpNotificationService
      */
     public function sendNotification(array $data): bool
     {
+        $jsonData = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
         $response = $this->client->post('/notification/send-email', [
-            'json' => $data,
+            'json' => json_decode($jsonData),
         ]);
 
         return $response->getStatusCode() === 200;

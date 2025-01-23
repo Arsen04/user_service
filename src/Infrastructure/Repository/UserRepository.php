@@ -22,6 +22,17 @@ class UserRepository
     public const string ROLES_COLUMN = 'roles';
     public const string USER_ID = 'id';
     private \PDO $pdo;
+    private array $allowedColumns = [
+        self::USER_ID,
+        self::ROLES_COLUMN,
+        self::EMAIL_COLUMN,
+        self::NAME_COLUMN,
+        self::CREATED_AT_COLUMN,
+        self::UPDATED_AT_COLUMN,
+        self::DELETED_COLUMN,
+        self::OLD_PASSWORD_COLUMN,
+        self::PASSWORD_COLUMN,
+    ];
 
     /**
      * @param \PDO $pdo
@@ -57,7 +68,9 @@ class UserRepository
 
     /**
      * @param int $id
+     *
      * @return UserInterface|bool
+     *
      * @throws \Exception
      */
     public function findById(int $id): UserInterface|bool
@@ -73,10 +86,13 @@ class UserRepository
 
     /**
      * @param array $params
+     *
      * @return array
      */
     public function findBy(array $params): array
     {
+        $this->checkForAllowedColumns($params);
+
         $query = "SELECT * FROM app_user WHERE " . implode(" AND ", array_map(fn($key) => "$key = :$key", array_keys($params)));
         $stmt = $this->pdo->prepare($query);
         foreach ($params as $key => $value) {
@@ -89,10 +105,13 @@ class UserRepository
 
     /**
      * @param array $params
-     * @return UserInterface
+     *
+     * @return UserInterface|bool
      */
-    public function findOneBy(array $params): UserInterface
+    public function findOneBy(array $params): UserInterface|bool
     {
+        $this->checkForAllowedColumns($params);
+
         $query = "SELECT * FROM app_user WHERE " . implode(" AND ", array_map(fn($key) => "$key = :$key", array_keys($params))) . " LIMIT 1";
         $stmt = $this->pdo->prepare($query);
         foreach ($params as $key => $value) {
@@ -100,18 +119,31 @@ class UserRepository
         }
         $stmt->execute();
 
-        return $stmt->fetchObject(UserInterface::class);
+        $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$userData) {
+            return $userData;
+        }
+
+        try {
+            return $this->returnAsObject($userData);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
      * @param array $userData
      * @param bool $update
+     *
      * @return UserInterface|null
      *
      * @throws \Exception
      */
     public function insertOrUpdate(array $userData, bool $update = false): ?UserInterface
     {
+        $this->checkForAllowedColumns($userData);
+
         if ($update) {
             $setClause = [];
             foreach ($userData as $key => $value) {
@@ -144,6 +176,20 @@ class UserRepository
     }
 
     /**
+     * @param array $params
+     *
+     * @return void
+     */
+    private function checkForAllowedColumns(array $params): void
+    {
+       foreach ($params as $paramKey => $value) {
+           if (!in_array($paramKey, $this->allowedColumns)) {
+               throw new \InvalidArgumentException("Invalid column name: $paramKey");
+           }
+       }
+    }
+
+    /**
      * @throws \Exception
      */
     private function returnAsObject(array $userData): UserInterface
@@ -154,7 +200,7 @@ class UserRepository
             $userData[self::NAME_COLUMN],
             new Email($userData[self::EMAIL_COLUMN]),
             array_key_exists(self::OLD_PASSWORD_COLUMN, $userData) ? $userData[self::OLD_PASSWORD_COLUMN] : null,
-            $userData[self::PASSWORD_COLUMN],
+            $userData[self::PASSWORD_COLUMN] ?? null,
             array_key_exists(self::DELETED_COLUMN, $userData) ? $userData[self::DELETED_COLUMN] : false,
             array_key_exists(self::UPDATED_AT_COLUMN, $userData) && $userData[self::UPDATED_AT_COLUMN] ? new \DateTimeImmutable($userData[self::UPDATED_AT_COLUMN]) : null,
             array_key_exists(self::CREATED_AT_COLUMN, $userData) ? new \DateTimeImmutable($userData[self::CREATED_AT_COLUMN]) : null

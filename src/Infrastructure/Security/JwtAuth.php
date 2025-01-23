@@ -57,6 +57,36 @@ class JwtAuth
      */
     public function decode(string $token): ?array
     {
+        $decodedPayload = $this->getDecodedPayload($token);
+
+        if ($decodedPayload === null || $this->isTokenExpired($token)) {
+            return null;
+        }
+
+        return $decodedPayload;
+    }
+
+
+    /**
+     * @param string $token
+     * @return bool
+     */
+    public function isTokenExpired(string $token): bool
+    {
+        $decodedPayload = $this->getDecodedPayload($token);
+        if ($decodedPayload === null) {
+            return true;
+        }
+
+        return isset($decodedPayload['exp']) && $decodedPayload['exp'] < time();
+    }
+
+    /**
+     * @param string $token
+     * @return array|null
+     */
+    private function getDecodedPayload(string $token): ?array
+    {
         $parts = explode('.', $token);
         if (count($parts) !== 3) {
             return null;
@@ -68,13 +98,7 @@ class JwtAuth
             return null;
         }
 
-        $decodedPayload = json_decode($this->base64UrlDecode($payload), true);
-
-        if (isset($decodedPayload['exp']) && $decodedPayload['exp'] < time()) {
-            return null;
-        }
-
-        return $decodedPayload;
+        return json_decode($this->base64UrlDecode($payload), true);
     }
 
     /**

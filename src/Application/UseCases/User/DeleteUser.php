@@ -20,22 +20,35 @@ class DeleteUser
 
     /**
      * @param int $id
+     * @param array $userData
+     *
      * @return UserInterface
+     *
      * @throws RecordExistsException
      */
-    public function execute(int $id): UserInterface
+    public function execute(int $id, array $userData): UserInterface
     {
         $user = $this->userService->getUserById($id);
 
         if (!$user) {
             throw new RecordExistsException("User with this id doesn't exist");
         }
-        $user->setDeleted(true);
+
+        if ($user->getDeleted()) {
+            throw new \InvalidArgumentException("User is already deactivated");
+        }
+
+        $userData['id'] = $id;
+        $userData['deleted'] = true;
+
+        if (isset($userData['roles'])) {
+            $userData['roles'] = json_encode($userData['roles']);
+        }
 
         return $this->userService
             ->saveUser(
                 json_decode(
-                    json_encode($user),
+                    json_encode($userData),
                     true
                 ),
                 true

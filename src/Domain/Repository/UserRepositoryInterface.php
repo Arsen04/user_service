@@ -25,9 +25,9 @@ interface UserRepositoryInterface
 
     /**
      * @param array $params
-     * @return UserInterface
+     * @return UserInterface|bool
      */
-    public function findOneBy(array $params): UserInterface;
+    public function findOneBy(array $params): UserInterface|bool;
 
     /**
      * @param array $userData

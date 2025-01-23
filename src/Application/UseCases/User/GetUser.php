@@ -19,7 +19,10 @@ class GetUser
     }
 
     /**
-     * @throws \Exception
+     * @param int $id
+     * @return UserInterface
+     *
+     * @throws RecordNotFoundException
      */
     public function execute(int $id): UserInterface
     {

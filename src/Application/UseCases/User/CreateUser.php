@@ -5,7 +5,9 @@ namespace App\Application\UseCases\User;
 use App\Application\Services\UserService;
 use App\Domain\Entities\UserInterface;
 use App\Domain\Exceptions\InvalidEmailException;
+use App\Domain\Exceptions\WeakPasswordException;
 use App\Domain\Validators\EmailValidator;
+use App\Domain\Validators\PasswordValidator;
 use App\Shared\Exceptions\RecordExistsException;
 
 class CreateUser
@@ -33,6 +35,10 @@ class CreateUser
         $existingUser = $this->userService->getUserByEmail($userData->email);
         if ($existingUser) {
             throw new RecordExistsException("User with this email already exists.");
+        }
+
+        if (!PasswordValidator::validate($userData->password)) {
+            throw new WeakPasswordException();
         }
 
         return $this->userService

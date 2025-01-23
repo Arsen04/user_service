@@ -15,13 +15,13 @@ class NotifyUser
     }
 
     /**
-     * @param array $userData
+     * @param array $data
      * @return void
      *
      * @throws GuzzleException
      */
-    public function execute(array $userData): void
+    public function execute(array $data): void
     {
-        $this->notificationService->sendNotification($userData);
+        $this->notificationService->sendNotification($data);
     }
 }

@@ -45,4 +45,13 @@ class JwtService
     {
         return $this->jwt->decode($token);
     }
+
+    /**
+     * @param string $token
+     * @return bool
+     */
+    public function isTokenExpired(string $token): bool
+    {
+        return $this->jwt->isTokenExpired($token);
+    }
 }

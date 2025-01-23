@@ -175,6 +175,14 @@ class User
     }
 
     /**
+     * @return bool
+     */
+    public function getDeleted(): bool
+    {
+        return $this->deleted;
+    }
+
+    /**
      * @return DateTimeImmutable|null
      */
     public function getUpdatedAt(): ?DateTimeImmutable
@@ -205,5 +213,18 @@ class User
     public function setCreatedAt(): void
     {
         $this->created_at = new DateTimeImmutable('now', new \DateTimeZone('UTC+4'));
+    }
+
+    /**
+     * Verify the provided password against the stored hashed password.
+     *
+     * @param string $password
+     * @param string $hashedPassword
+     *
+     * @return bool
+     */
+    public function verifyPassword(string $password, string $hashedPassword): bool
+    {
+        return password_verify($password, $hashedPassword);
     }
 }

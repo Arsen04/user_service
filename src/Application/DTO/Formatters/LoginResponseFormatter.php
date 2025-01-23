@@ -2,10 +2,11 @@
 
 namespace App\Application\DTO\Formatters;
 
-class UserResponseFormatter
+class LoginResponseFormatter
 {
     /**
      * @param array $formattedUser
+     * @param string $token
      * @param string $message
      * @param string $responseStatus
      *
@@ -13,11 +14,15 @@ class UserResponseFormatter
      */
     public static function format(
         array $formattedUser,
+        string $token,
         string $message,
         string $responseStatus
     ): array {
         return [
-            'data'    => $formattedUser,
+            'data'    => [
+                'user'  => $formattedUser,
+                'token' => $token
+            ],
             'message' => $message,
             'status'  => $responseStatus
         ];

@@ -35,4 +35,12 @@ class Email
     {
         return $this->email = $email;
     }
+
+    /**
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
 }

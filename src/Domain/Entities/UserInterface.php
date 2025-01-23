@@ -14,6 +14,7 @@ interface UserInterface
 
     /**
      * @param int|null $id
+     *
      * @return void
      */
     public function setId(?int $id): void;
@@ -25,6 +26,7 @@ interface UserInterface
 
     /**
      * @param array $roles
+     *
      * @return void
      */
     public function setRoles(array $roles): void;
@@ -36,6 +38,7 @@ interface UserInterface
 
     /**
      * @param string $name
+     *
      * @return void
      */
     public function setName(string $name): void;
@@ -47,6 +50,7 @@ interface UserInterface
 
     /**
      * @param Email $email
+     *
      * @return void
      */
     public function setEmail(Email $email): void;
@@ -58,6 +62,7 @@ interface UserInterface
 
     /**
      * @param string $oldPassword
+     *
      * @return void
      */
     public function setOldPassword(string $oldPassword): void;
@@ -69,6 +74,7 @@ interface UserInterface
 
     /**
      * @param string $password
+     *
      * @return void
      */
     public function setPassword(string $password): void;
@@ -80,9 +86,15 @@ interface UserInterface
 
     /**
      * @param bool $deleted
+     *
      * @return void
      */
     public function setDeleted(bool $deleted): void;
+
+    /**
+     * @return bool
+     */
+    public function getDeleted(): bool;
 
     /**
      * @return DateTimeImmutable|null
@@ -91,6 +103,7 @@ interface UserInterface
 
     /**
      * @param DateTimeImmutable|null $updated_at
+     *
      * @return void
      */
     public function setUpdatedAt(?DateTimeImmutable $updated_at): void;
@@ -99,4 +112,13 @@ interface UserInterface
      * @return DateTimeImmutable|null
      */
     public function getCreatedAt(): ?DateTimeImmutable;
+
+    /**
+     * Verify the provided password against the stored hashed password.
+     *
+     * @param string $password
+     * @param string $hashedPassword
+     * @return bool
+     */
+    public function verifyPassword(string $password, string $hashedPassword): bool;
 }

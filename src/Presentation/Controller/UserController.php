@@ -13,6 +13,8 @@ use App\Domain\Exceptions\InvalidEmailException;
 use App\Infrastructure\Logging\Logger;
 use App\Presentation\Http\Request;
 use App\Presentation\Http\Response;
+use App\Presentation\View\LetterView;
+use App\Presentation\View\NotificationView;
 use App\Presentation\View\UserView;
 use App\Shared\Exceptions\RecordExistsException;
 use App\Shared\Exceptions\RecordNotFoundException;
@@ -65,18 +67,21 @@ class UserController
         $response = new Response();
         $newDate = new DateTimeImmutable(false);
 
+        $formatedUserCollection = [];
+
         try {
-            $formatedUserCollection = [];
             $userCollection = $this->getUserList->execute();
             foreach ($userCollection as $user) {
                 $formatedUserCollection[] = UserView::formatUser($user);
             }
             $message = 'Successfully retrieved users.';
             $status = Response::SUCCESS_STATUS_MESSAGE;
+            $statusCode = Response::STATUS_OK;
         } catch (RecordNotFoundException $exception) {
             $message = Response::NO_RECORDS_MESSAGE;
             $errorMessage = [$exception->getMessage()];
             $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_NOT_FOUND;
             $this->logger->warning(
                 $message,
                 [
@@ -88,6 +93,7 @@ class UserController
             $message = "Unable to get users.";
             $errorMessage = [$exception->getMessage()];
             $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_BAD_GATEWAY;
             $this->logger->error(
                 $message,
                 [
@@ -99,7 +105,7 @@ class UserController
         $data = UserResponseFormatter::format($formatedUserCollection, $message, $status);
 
         return $response
-            ->withJson($data, Response::STATUS_OK)
+            ->withJson($data, $statusCode)
             ->send();
     }
 
@@ -114,15 +120,18 @@ class UserController
         $newDate = new DateTimeImmutable(false);
 
         $formattedUser = [];
+
         try {
             $user = $this->getUser->execute($id);
             $formattedUser = UserView::formatUser($user);
             $message = "Successfully retrieved user.";
             $status = Response::SUCCESS_STATUS_MESSAGE;
+            $statusCode = Response::STATUS_OK;
         } catch (RecordNotFoundException $exception) {
             $message = Response::NO_RECORDS_MESSAGE;
             $errorMessage = [$exception->getMessage()];
             $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_NOT_FOUND;
             $this->logger->warning(
                 $message,
                 [
@@ -134,6 +143,7 @@ class UserController
             $message = "Unable to get user.";
             $errorMessage = [$exception->getMessage()];
             $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_BAD_GATEWAY;
             $this->logger->error(
                 $message,
                 [
@@ -145,7 +155,7 @@ class UserController
         $data = UserResponseFormatter::format($formattedUser, $message, $status);
 
         return $response
-            ->withJson($data, Response::STATUS_OK)
+            ->withJson($data, $statusCode)
             ->send();
     }
 
@@ -157,20 +167,31 @@ class UserController
     {
         $response = new Response();
         $newDate = new DateTimeImmutable(false);
+
         $userData = $request->getBody()->getContents();
         $userObject = json_decode($userData);
+
+        $formattedUser = [];
 
         try {
             $user = $this->createUser->execute($userObject);
             $formattedUser = UserView::formatUser($user);
-            $this->notifyUser->execute($formattedUser);
+
+            $letterSubject = "Verify Your Account";
+            $letterMessage = sprintf("Hello, %s! We are delighted to have you with us!", $user->getName());
+
+            $formattedLetter = LetterView::formatLetter($letterSubject, $letterMessage);
+            $formattedNotification = NotificationView::formatNotification($user, $formattedLetter);
+
+            $this->notifyUser->execute($formattedNotification);
             $message = "User created successfully.";
             $status = Response::SUCCESS_STATUS_MESSAGE;
+            $statusCode = Response::STATUS_CREATED;
         } catch (RecordExistsException|InvalidEmailException $exception) {
-            $formattedUser = [];
             $message = $exception->getMessage();
             $errorMessage = [$exception->getMessage()];
             $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_BAD_REQUEST;
             $this->logger->warning(
                 $message,
                 [
@@ -179,10 +200,10 @@ class UserController
                 ]
             );
         } catch (GuzzleException $exception) {
-            $formattedUser = [];
             $message = "Failed to send an email.";
             $errorMessage = [$exception->getMessage()];
-            $status = Response::FAILED_STATUS_FAILURE;
+            $status = Response::SUCCESS_STATUS_MESSAGE;
+            $statusCode = Response::STATUS_OK;
             $this->logger->error(
                 $message,
                 [
@@ -191,10 +212,10 @@ class UserController
                 ]
             );
         } catch (Exception $exception) {
-            $formattedUser = [];
             $message = "Failed to create the user.";
             $errorMessage = [$exception->getMessage()];
             $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_BAD_GATEWAY;
             $this->logger->error(
                 $message,
                 [
@@ -206,7 +227,7 @@ class UserController
         $data = UserResponseFormatter::format($formattedUser, $message, $status);
 
         return $response
-            ->withJson($data, Response::STATUS_OK)
+            ->withJson($data, $statusCode)
             ->send();
     }
 
@@ -219,19 +240,23 @@ class UserController
     {
         $response = new Response();
         $newDate = new DateTimeImmutable(false);
+
         $userData = $request->getBody()->getContents();
         $userObject = json_decode($userData);
+
+        $formattedUser = [];
 
         try {
             $user = $this->updateUser->execute($id, $userObject);
             $formattedUser = UserView::formatUser($user);
             $message = "User updated successfully.";
             $status = Response::SUCCESS_STATUS_MESSAGE;
+            $statusCode = Response::STATUS_CREATED;
         } catch (RecordExistsException $exception) {
-            $formattedUser = [];
             $message = $exception->getMessage();
             $errorMessage = [$exception->getMessage()];
             $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_BAD_REQUEST;
             $this->logger->error(
                 $message,
                 [
@@ -240,10 +265,10 @@ class UserController
                 ]
             );
         } catch (Exception $exception) {
-            $formattedUser = [];
             $message = "Failed to update the user.";
             $errorMessage = [$exception->getMessage()];
             $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_BAD_GATEWAY;
             $this->logger->error(
                 $message,
                 [
@@ -255,7 +280,7 @@ class UserController
         $data = UserResponseFormatter::format($formattedUser, $message, $status);
 
         return $response
-            ->withJson($data, Response::STATUS_OK)
+            ->withJson($data, $statusCode)
             ->send();
     }
 
@@ -268,16 +293,20 @@ class UserController
         $response = new Response();
         $newDate = new DateTimeImmutable(false);
 
+        $formattedUser = [];
+
         try {
-            $user = $this->deleteUser->execute($id);
+            $user = $this->getUser->execute($id);
             $formattedUser = UserView::formatUser($user);
-            $message = "User created successfully.";
+            $this->deleteUser->execute($id, $formattedUser);
+            $message = "Account deactivated successfully.";
             $status = Response::SUCCESS_STATUS_MESSAGE;
-        } catch (RecordExistsException $exception) {
-            $formattedUser = [];
+            $statusCode = Response::STATUS_OK;
+        } catch (RecordExistsException|\InvalidArgumentException $exception) {
             $message = $exception->getMessage();
             $errorMessage = [$exception->getMessage()];
             $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_BAD_REQUEST;
             $this->logger->error(
                 $message,
                 [
@@ -286,10 +315,10 @@ class UserController
                 ]
             );
         } catch (Exception $exception) {
-            $formattedUser = [];
             $message = "Failed to delete the user.";
             $errorMessage = [$exception->getMessage()];
             $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_BAD_GATEWAY;
             $this->logger->error(
                 $message,
                 [
@@ -301,7 +330,7 @@ class UserController
         $data = UserResponseFormatter::format($formattedUser, $message, $status);
 
         return $response
-            ->withJson($data, Response::STATUS_OK)
+            ->withJson($data, $statusCode)
             ->send();
     }
 }

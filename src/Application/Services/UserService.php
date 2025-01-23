@@ -19,6 +19,7 @@ class UserService
 
     /**
      * @param int $id
+     *
      * @return UserInterface|bool
      */
     public function getUserById(int $id): UserInterface|bool
@@ -28,11 +29,12 @@ class UserService
 
     /**
      * @param string $email
-     * @return array
+     *
+     * @return UserInterface|bool
      */
-    public function getUserByEmail(string $email): array
+    public function getUserByEmail(string $email): UserInterface|bool
     {
-        return $this->userRepository->findBy(["email" => $email]);
+        return $this->userRepository->findOneBy(["email" => $email]);
     }
 
     /**
@@ -46,6 +48,7 @@ class UserService
     /**
      * @param array $userData
      * @param bool $update
+     *
      * @return UserInterface|null
      */
     public function saveUser(array $userData, bool $update = false): ?UserInterface

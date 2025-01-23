@@ -15,7 +15,7 @@ class UserView
         return [
             'name' => $user->getName(),
             'roles' => $user->getRoles(),
-            'email' => $user->getEmail()->__toString(),
+            'email' => $user->getEmail()->getEmail(),
         ];
     }
 }
