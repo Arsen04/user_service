@@ -4,9 +4,11 @@ namespace App\Presentation\Controller;
 
 use App\Application\DTO\Formatters\LoginResponseFormatter;
 use App\Application\Exceptions\InvalidCredentialsException;
+use App\Application\Requests\AuthenticateRequest;
 use App\Application\UseCases\Authentication\GetJWT;
 use App\Application\UseCases\Authentication\LoginAction;
 use App\Application\UseCases\Notification\NotifyUser;
+use App\Application\Validators\JsonRequestValidator;
 use App\Domain\Exceptions\InvalidEmailException;
 use App\Infrastructure\Logging\Logger;
 use App\Presentation\Http\Request;
@@ -59,9 +61,12 @@ class AuthController
         $formattedUser = [];
         $token = '';
 
-        $loginData = $request->getBody()->getContents();
-        $loginObject = json_decode($loginData);
         try {
+            $loginData = $request->getBody()->getContents();
+            $loginObject = json_decode($loginData);
+
+            JsonRequestValidator::validate(json_decode($loginData, true), AuthenticateRequest::rules());
+
             $user = $this->loginAction->execute($loginObject);
             $formattedUser = UserView::formatUser($user);
             $token = $this->getJwt->execute($formattedUser);
@@ -115,6 +120,18 @@ class AuthController
             $status = Response::FAILED_STATUS_FAILURE;
             $statusCode = Response::STATUS_NOT_FOUND;
             $this->logger->warning(
+                $message,
+                [
+                    'error' => $errorMessage,
+                    'date' => $newDate->format('d-m-Y H:i:s')
+                ]
+            );
+        } catch (\InvalidArgumentException $exception) {
+            $message = "The request body provided is invalid.";
+            $errorMessage = [$exception->getMessage()];
+            $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_BAD_REQUEST;
+            $this->logger->error(
                 $message,
                 [
                     'error' => $errorMessage,

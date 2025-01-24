@@ -3,12 +3,15 @@
 namespace App\Presentation\Controller;
 
 use App\Application\DTO\Formatters\UserResponseFormatter;
+use App\Application\Requests\CreateUserRequest;
+use App\Application\Requests\UpdateUserRequest;
 use App\Application\UseCases\Notification\NotifyUser;
 use App\Application\UseCases\User\CreateUser;
 use App\Application\UseCases\User\DeleteUser;
 use App\Application\UseCases\User\GetUser;
 use App\Application\UseCases\User\GetUserList;
 use App\Application\UseCases\User\UpdateUser;
+use App\Application\Validators\JsonRequestValidator;
 use App\Domain\Exceptions\InvalidEmailException;
 use App\Infrastructure\Logging\Logger;
 use App\Presentation\Http\Request;
@@ -174,6 +177,8 @@ class UserController
         $formattedUser = [];
 
         try {
+            JsonRequestValidator::validate(json_decode($userData, true), CreateUserRequest::rules());
+
             $user = $this->createUser->execute($userObject);
             $formattedUser = UserView::formatUser($user);
 
@@ -204,6 +209,18 @@ class UserController
             $errorMessage = [$exception->getMessage()];
             $status = Response::SUCCESS_STATUS_MESSAGE;
             $statusCode = Response::STATUS_OK;
+            $this->logger->error(
+                $message,
+                [
+                    'error' => $errorMessage,
+                    'date' => $newDate->format('d-m-Y H:i:s')
+                ]
+            );
+        } catch (\InvalidArgumentException $exception) {
+            $message = "The request body provided is invalid.";
+            $errorMessage = [$exception->getMessage()];
+            $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_BAD_REQUEST;
             $this->logger->error(
                 $message,
                 [
@@ -247,6 +264,8 @@ class UserController
         $formattedUser = [];
 
         try {
+            JsonRequestValidator::validate(json_decode($userData, true), UpdateUserRequest::rules());
+
             $user = $this->updateUser->execute($id, $userObject);
             $formattedUser = UserView::formatUser($user);
             $message = "User updated successfully.";
@@ -254,6 +273,18 @@ class UserController
             $statusCode = Response::STATUS_CREATED;
         } catch (RecordExistsException $exception) {
             $message = $exception->getMessage();
+            $errorMessage = [$exception->getMessage()];
+            $status = Response::FAILED_STATUS_FAILURE;
+            $statusCode = Response::STATUS_BAD_REQUEST;
+            $this->logger->error(
+                $message,
+                [
+                    'error' => $errorMessage,
+                    'date' => $newDate->format('d-m-Y H:i:s')
+                ]
+            );
+        } catch (\InvalidArgumentException $exception) {
+            $message = "The request body provided is invalid.";
             $errorMessage = [$exception->getMessage()];
             $status = Response::FAILED_STATUS_FAILURE;
             $statusCode = Response::STATUS_BAD_REQUEST;
